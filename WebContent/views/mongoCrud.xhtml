@@ -1,0 +1,421 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+<link rel="stylesheet" type="text/css" href="#{facesContext.externalContext.requestContextPath}/core/static/css/style.css" />
+	<h:title>
+		<center><h3>{> MongoDB version 4 CRUD }</h3></center>
+	</h:title>
+	<br />
+</h:head>
+<h:body style="background-color: darkgray;">
+
+
+<p:panel>
+<a href="#{facesContext.externalContext.requestContextPath}/views/index.xhtml">home</a>
+</p:panel>
+
+<!-- PANEL DE MENU PRINCIPAL -->
+	<p:panel visible="true" id="panelMenu" header="Menu de acciones">
+
+		<h:form>
+			<p:panelGrid>
+				<p:row>
+					<p:column>
+						<p:selectOneMenu id="tabla" value="#{mongoViewAgenda.selecTable}">
+							<f:selectItem itemLabel="Seleccionar" itemValue="" />
+							<f:selectItem itemLabel="Agenda" itemValue="agenda" />
+<!-- 							<f:selectItem itemLabel="catalogo" itemValue="catalogo" /> -->
+<!-- 							<f:selectItem itemLabel="historial" itemValue="historial" /> -->
+							<f:facet name="footer">
+								<h:outputText value="3 options" style="font-weight:bold;" />
+							</f:facet>
+						</p:selectOneMenu>
+					</p:column>
+					<!-- BOTON DE CONSULTAR TODOS-->
+					<p:column>
+						<p:commandButton value="Consultar"
+							actionListener="#{mongoViewAgenda.consultaAgenda}"
+							
+							onclick="PF('consultDataDialog').show()"
+							oncomplete="PF('consultDataDialog').hide();"
+							update=":formConsultar:tableDatos,panelConsultar,panelAgregar,panelEliminar,panelActualizar">
+							<p:ajax event="click" 	listener="#{mongoViewAgenda.verPanelConsultar()}" update=":formConsultar:tableTodos"/>
+							</p:commandButton>
+					</p:column>
+					<!-- BOTON DE AGREGAR -->
+					<p:column>
+						<p:commandButton value="Agregar elemento"
+						styleClass="blue-button" 
+							action="#{mongoViewAgenda.verPanelAgregar}"
+							update="panelConsultar,panelAgregar,panelEliminar,panelActualizar" />
+
+					</p:column>
+					<!-- BOTON DE AELIMINAR -->
+					<p:column>
+						<p:commandButton value="Eliminar Elemento"
+							action="#{mongoViewAgenda.verPanelEliminar}"
+							update="panelConsultar,panelAgregar,panelEliminar,panelActualizar">
+							<p:ajax event="click" listener="#{mongoViewAgenda.limpiar()}"
+								update="panelConsultar,panelAgregar,panelEliminar,panelActualizar" />
+						</p:commandButton>
+					</p:column>
+					<!-- BOTON DE ACTUALIZAR -->
+					<p:column>
+						<p:commandButton value="Actualizar elemento"
+							action="#{mongoViewAgenda.verPanelActualizar}"
+							update="panelConsultar,panelAgregar,panelEliminar,panelActualizar" />
+					</p:column>
+					
+					</p:row>
+			</p:panelGrid>
+		</h:form>
+	</p:panel>
+
+
+
+<!-- PANEL CONSULTAR TODOS -->
+	<p:panel visible="#{mongoViewAgenda.panelConsultar}"
+		id="panelConsultar" header="LISTA DE TODOS LOS ELEMENTOS EXISTENTES">
+		<h:form id="formConsultar">
+
+			<p:panel visible="#{mongoViewAgenda.tableDatos}" id="tableDatos">
+				<p:dataTable var="emp" value="#{mongoViewAgenda.agenda}"
+					id="tableTodos" paginator="true" rowsPerPageTemplate="10,20"
+					rows="10" emptyMessage="No se encontraron registros">
+					<p:column headerText="ID">
+						<h:outputText value="#{emp.id}" />
+					</p:column>
+
+					<p:column headerText="NOMBRE">
+						<h:outputText value="#{emp.nombre}" />
+					</p:column>
+
+					<p:column headerText="HEROE">
+						<h:outputText value="#{emp.heroe}" />
+					</p:column>
+
+					<p:column headerText="COMPANIA">
+						<h:outputText value="#{emp.compania}" />
+					</p:column>
+
+					<p:column headerText="ESTATUS">
+						<h:outputText value="#{emp.estatus}" />
+
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+		</h:form>
+
+		<p:spacer width="5%" />
+
+	</p:panel>
+	
+	<!-- MODAL ALERTA -->
+	<p:dialog header="Consulta" widgetVar="digSinRegistro" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false">
+		<p>SIN INFORMACION</p>
+	</p:dialog>
+	
+	
+<!-- PANEL AGREGAR ELEMENTO -->
+	<p:panel visible="#{mongoViewAgenda.panelAgregar}" id="panelAgregar"
+		header="Registrar Elementos">
+		<h:form id="formAgregar">
+			<p:panelGrid>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="ID" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Nombre" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Heroe" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.id}" disabled="true" />
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.nombre}" />
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.heroe}" />
+					</p:column>
+				</p:row>
+
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Compania" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Estatus" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:selectOneMenu id="compania" value="#{mongoViewAgenda.compania}">
+							<f:selectItem itemLabel="Selecciona" itemValue="" />
+							<f:selectItem itemLabel="DC COMICS" itemValue="dc comics" />
+							<f:selectItem itemLabel="MARVEL" itemValue="marvel" />
+							<f:selectItem itemLabel="OTRO " itemValue="otro" />
+							<f:facet name="footer">
+								<h:outputText value="3 options" style="font-weight:bold;" />
+							</f:facet>
+						</p:selectOneMenu>
+						<!--         	<p:inputText value="#{mongoViewAgenda.compania}"/> -->
+					</p:column>
+					<p:column>
+						<p:selectOneMenu id="estatus" value="#{mongoViewAgenda.estatus}">
+							<f:selectItem itemLabel="Seleccionar" itemValue="" />
+							<f:selectItem itemLabel="Activo" itemValue="1" />
+							<f:selectItem itemLabel="Inactivo" itemValue="0" />
+							<f:facet name="footer">
+								<h:outputText value="2 options" style="font-weight:bold;" />
+							</f:facet>
+						</p:selectOneMenu>
+						<!--     	 <p:inputText value="#{mongoViewAgenda.estatus}"/> -->
+					</p:column>
+					<p:column>
+						<p:commandButton value="Registrar"
+							action="#{mongoViewAgenda.agregarElemento}"
+							update="panelConsultar,panelAgregar,panelEliminar,panelActualizar,formAgregar"
+							onstart="PF('consultDataDialog').show()"
+							oncomplete="PF('consultDataDialog').hide()" />
+					</p:column>
+				</p:row>
+			</p:panelGrid>
+		</h:form>
+		<p:spacer width="5%" />
+	</p:panel>
+
+
+<!-- MODAL ALERTA NO SE CONSULTO EL ID-->
+	<p:dialog header="Consulta" widgetVar="diagNoId" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false">
+		<p>NO SE PUDO CONSULTAR EL ID</p>
+	</p:dialog>
+	<!-- MODAL ALERTA ocurrio un error al guardar elemento -->
+	<p:dialog header="Consulta" widgetVar="diagErrorGuadar" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false">
+		<p>Error ¡ OCURRUIO UN ERROR AL GUARDAR !</p>
+	</p:dialog>
+	<!-- MODAL ALERTA no se consulto el ID-->
+	<p:dialog header="Consulta" widgetVar="diagOK" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<p>SE GUARDARDO CORRECTAMENTE</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" action="#{mongoViewAgenda.ultimoInsertado}"
+			onclick="PF('diagOK').hide();" update="formAgregar" />
+	</p:dialog>
+	
+
+<!-- PANEL ELIMINAR -->
+	<p:panel visible="#{mongoViewAgenda.panelEliminar}" id="panelEliminar"
+		header="Eliminar Elemento">
+		<h:form id="formEliminar">
+			<p:panelGrid>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="ID" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.id}" />
+					</p:column>
+				</p:row>
+
+				<p:row>
+
+					<p:column>
+						<p:outputLabel value="" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:commandButton value="Eliminar"
+							action="#{mongoViewAgenda.eliminarElemento}"
+							update="formEliminar" 
+							onclick="PF('consultDataDialog').show()"
+							oncomplete="PF('consultDataDialog').hide();"/>
+					</p:column>
+				</p:row>
+			</p:panelGrid>
+		</h:form>
+	</p:panel>
+	<!-- DIALOG SE HA ELIMINADO CORECTAMENTE -->
+	<p:dialog header="Consulta" widgetVar="diagOkDelete" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<p>SE ELIMINO CORRECTAMENTE</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagOkDelete').hide();"
+			update="formEliminar" />
+
+	</p:dialog>
+	<!-- DIALOG ERROR AL  ELIMINAR ELEMENTO -->
+	<p:dialog header="Consulta" widgetVar="diagErrorDelete" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<p>ERROR AL ELIMINAR ELEMENTO</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagErrorDelete').hide();"
+			update="formEliminar" />
+
+	</p:dialog>
+
+	<!-- PANEL ACTUALIZAR INFORMACION  -->
+	<p:panel visible="#{mongoViewAgenda.panelActualizar}"
+		id="panelActualizar" header="Actualizar Datos">
+		<h:form id="formActualizarId">
+			<p:panelGrid>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="ID a buscar" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.respuesta}" />
+					</p:column>
+				</p:row>
+
+				<p:row>
+					<p:column>
+						<p:outputLabel value="" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:commandButton value="BUSCAR"
+							action="#{mongoViewAgenda.consultaPorId}" update="formActualizar"
+							onclick="PF('consultDataDialog').show();"
+							oncomplete="PF('consultDataDialog').hide();" />
+					</p:column>
+				</p:row>
+			</p:panelGrid>
+		</h:form>
+		<p:spacer width="5%" />
+	</p:panel>
+
+
+	<!-- DIALOG ACTUALIZAR -->
+	<p:dialog header="Consulta" widgetVar="diagActualizar" minHeight="40"
+		width="470" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<h:form id="formActualizar">
+			<p:panelGrid>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="ID" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Nombre" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.agendaVO.id}"
+							disabled="true" />
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.agendaVO.nombre}">
+							<f:ajax event="change" />
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Heroe" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Compania" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.agendaVO.heroe}">
+							<f:ajax event="change" />
+						</p:inputText>
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.agendaVO.compania}">
+							<f:ajax event="change" />
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Estatus" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewAgenda.agendaVO.estatus}">
+							<f:ajax event="change" />
+						</p:inputText>
+					</p:column>
+					<p:column>
+						<p:commandButton value="Actualizar"
+							action="#{mongoViewAgenda.actualizarElemento}"
+							update="formActualizarId" onclick="PF('diagActualizar').hide();PF('consultDataDialog').show();"
+							oncomplete="PF('consultDataDialog').hide();">
+						</p:commandButton>
+
+					</p:column>
+				</p:row>
+			</p:panelGrid>
+		</h:form>
+		<p:spacer width="5%" />
+	</p:dialog>
+
+	<!-- DIALOG ERROR AL ACTUALIZAR -->
+	<p:dialog header="Consulta" widgetVar="diagErrorActualizar"
+		minHeight="40" width="350" showEffect="fade" modal="true"
+		resizable="false" closable="false">
+		<p>ERROR ¡ OCURRIO UN ERROR AL CONSULATAR EL ID !</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagErrorActualizar').hide();"
+			update="formActualizarId,formActualizar" />
+
+	</p:dialog>
+	<!-- DIALOG MODAL ACTUALIZACION CORRECTA -->
+	<p:dialog header="Consulta" widgetVar="diagOkActualizar" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<p>¡ SE ACTUALIZO CORRECTAMENTE !</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagOkActualizar').hide();"
+			update="formActualizarId,formActualizar" />
+	</p:dialog>
+
+	
+
+	
+	<!-- 		DIALOG DE BARRA DE CARGA -->
+	<p:dialog id="consultDataDialog" widgetVar="consultDataDialog"
+		modal="true" draggable="false" resizable="false" appendTo="@(body)"
+		closable="false" showHeader="false" showEffect="fade">
+		<div align="center">
+			<h:outputText value="Procesando..." styleClass="outputTextGeneric" />
+			<br />
+			<h:graphicImage value="/core/static/images/loading-bar.gif"
+				width="150" />
+		</div>
+	</p:dialog>
+<!-- <script	src="#{facesContext.externalContext.requestContextPath}/core/static/jquery/jquery-ui-1.9.2.custom.min.js"></script> -->
+<!-- <script	src="#{facesContext.externalContext.requestContextPath}/core/static/jquery/jquery.min.js"></script> -->
+</h:body>
+</html>

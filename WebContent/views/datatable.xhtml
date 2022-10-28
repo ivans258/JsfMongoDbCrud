@@ -1,0 +1,456 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html 	xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:h="http://xmlns.jcp.org/jsf/html"
+	 	xmlns:f="http://java.sun.com/jsf/core"
+	 	xmlns:ui="http://java.sun.com/jsf/facelets"
+		xmlns:p="http://primefaces.org/ui">
+<h:head>		
+<meta charset="ISO-8859-1"></meta>
+<h:title><h3><center>Datatable JSF primefaces 5.2 con MongoDB version 4</center></h3></h:title><br/>
+</h:head>
+<h:body style="background-color: darkgray;">
+<!-- PANEL CONSULTAR TODOS -->
+<p:panel>
+<a href="#{facesContext.externalContext.requestContextPath}/views/index.xhtml">home</a>
+</p:panel>
+
+<!-- 	<p:panel visible="#{mongoViewDatatableAll.panelDataTable}" -->
+	<p:panel visible="true"
+		id="panelConsultar" header="LISTA DE TODOS LOS ELEMENTOS EXISTENTES">
+		
+		<h:form id="formConsultar">
+			<p:panelGrid>
+				<p:row>
+					<p:column>
+						<p:selectOneMenu id="tabla" value="#{mongoViewDatatableAll.selecTable}">
+							<f:selectItem itemLabel="Seleccionar" itemValue="" />
+							<f:selectItem itemLabel="Agenda" itemValue="agenda" />
+<!-- 							<f:selectItem itemLabel="catalogo" itemValue="catalogo" /> -->
+<!-- 							<f:selectItem itemLabel="historial" itemValue="historial" /> -->
+							<f:facet name="footer">
+								<h:outputText value="3 options" style="font-weight:bold;" />
+							</f:facet>
+						</p:selectOneMenu>
+					</p:column>
+					<p:column>
+						<p:commandButton value="Consultar"
+							action="#{mongoViewDatatableAll.consultaAgenda}" update=":formConsultar:tableDatos"
+							onclick="PF('consultDataDialog').show()"
+							oncomplete="PF('consultDataDialog').hide();" />
+					</p:column>
+				</p:row>
+			</p:panelGrid>
+			<p:panel visible="#{mongoViewDatatableAll.tableDatos}" id="tableDatos">
+				<p:dataTable var="emp" value="#{mongoViewDatatableAll.agenda}"
+					id="tableTodos" 
+					paginator="true" 
+					rowsPerPageTemplate="10,20"
+					rows="10" 
+					emptyMessage="No se encontraron registros"
+					rowKey="#{emp.id}" 
+					selection="#{mongoViewDatatableAll.objSelect}"
+					selectionMode="single">
+					<p:ajax  event="rowSelect" update="@this,formActualiza,formElimina,diagAgregar,:formConsultar:btnsCrud" />
+					
+					
+					<p:column selectionMode="single" style="width:16px;text-align:center" >
+					
+					</p:column>
+					<p:column headerText="ID">
+						<h:outputText value="#{emp.id}" />
+					</p:column>
+
+					<p:column headerText="NOMBRE">
+						<h:outputText value="#{emp.nombre}" />
+					</p:column>
+
+					<p:column headerText="HEROE">
+						<h:outputText value="#{emp.heroe}" />
+					</p:column>
+
+					<p:column headerText="COMPANIA">
+						<h:outputText value="#{emp.compania}" />
+					</p:column>
+
+					<p:column headerText="ESTATUS">
+						<h:outputText value="#{emp.estatus}" />
+					</p:column>
+				</p:dataTable>
+				<p:spacer width="1%" />
+				<p:panelGrid id="btnsCrud">
+				<p:row>
+					<p:column>
+					<p:commandButton id="btnEditar" value="Editar"
+							onclick="PF('diagActualizar').show();" 
+							disabled="#{empty mongoViewDatatableAll.objSelect}"/>	
+					</p:column>
+					<p:column>
+					<p:commandButton id="btnEiminar" value="Eliminar"
+							onclick="PF('diagEliminar').show();"
+								disabled="#{empty mongoViewDatatableAll.objSelect}"
+							/>	
+					</p:column>
+					<p:column>
+					<p:commandButton value="Agregar" 
+									onclick="PF('diagAgregar').show()"
+									actionListener="#{mongoViewDatatableAll.obtenerIdNext}"
+									
+									>
+
+<!-- 									<p:ajax event="click"  listener="#{mongoViewDatatableAll.obtenerIdNext()}" /> -->
+					</p:commandButton>	
+					</p:column>
+				</p:row>
+				
+				
+				</p:panelGrid>
+				
+				
+			</p:panel>
+			
+			
+		</h:form>
+
+		
+	</p:panel>
+
+<!-- MODAL ALERTA -->
+	<p:dialog header="Consulta" widgetVar="digSinRegistro" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false">
+		<p>SIN INFORMACION</p>
+	</p:dialog>
+		
+<!-- 	DATOS A ACTUALIZAR -->
+<h:form id="formActualiza">
+	<p:dialog header="Consulta" widgetVar="diagActualizar" minHeight="40"
+		width="470" showEffect="fade" modal="true" resizable="false" closable="false">
+		<p>INFORMACION AACTUALIZAR</p>
+		
+		<p:panelGrid>
+			<p:row>
+					<p:column>
+						<p:outputLabel value="ID" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Nombre" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.id}"
+							disabled="true" >
+<!-- 							<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.id}" update="@this"/>  -->
+							</p:inputText>
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.nombre}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.nombre}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Heroe" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Compania" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.heroe}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.heroe}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.compania}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.compania}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Estatus" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.estatus}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.estatus}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+					<p:column>
+					</p:column>
+				</p:row>
+				<p:row>
+				<p:column>
+						<p:commandButton value="Actualizar"
+							action="#{mongoViewDatatableAll.actualizar()}"
+							onclick="PF('diagActualizar').hide()"
+							oncomplete="PF('consultDataDialog').hide();">
+						</p:commandButton>
+
+					</p:column>
+					<p:column>
+						<p:commandButton value="Cancelar"
+										onclick="PF('diagActualizar').hide()">
+							</p:commandButton>
+
+					</p:column>
+				</p:row>
+		</p:panelGrid>
+		</p:dialog>
+</h:form>	
+
+<!-- DIALOG ERROR AL ACTUALIZAR -->
+	<p:dialog header="Consulta" widgetVar="diagErrorActualizar"
+		minHeight="40" width="350" showEffect="fade" modal="true"
+		resizable="false" closable="false">
+		<p> ERROR AL ACTUALIZAR</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagErrorActualizar').hide();" />
+		</p:dialog>
+
+<!-- DIALOG MODAL ACTUALIZACION CORRECTA -->	
+<p:dialog header="Consulta" widgetVar="diagOkActualizar" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<p> SE ACTUALIZO CORRECTAMENTE</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagOkActualizar').hide();" 
+			update=":formConsultar:tableTodos"/>
+	</p:dialog>	
+	
+
+<!-- 	DATOS A ELIMINAR -->
+<h:form id="formElimina">
+	<p:dialog header="Datos a Eliminar" widgetVar="diagEliminar" minHeight="40"
+		width="470" showEffect="fade" modal="true" resizable="false" closable="false">
+		<p>Datos a eliminar</p>
+		
+		<p:panelGrid>
+			<p:row>
+					<p:column>
+						<p:outputLabel value="ID" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Nombre" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.id}" disabled="true" >
+<!-- 							<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.id}" update="@this"/>  -->
+							</p:inputText>
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.nombre}" disabled="true">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.nombre}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Heroe" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Compania" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.heroe}" disabled="true">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.heroe}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.compania}" disabled="true">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.compania}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Estatus" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.objSelect.estatus}" disabled="true">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.estatus}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+					<p:column>
+					</p:column>
+				</p:row>
+				<p:row>
+				<p:column>
+						<p:commandButton value="Eliminar"
+							action="#{mongoViewDatatableAll.eliminaElemento()}"
+							onclick="PF('diagEliminar').hide()"
+							oncomplete="PF('consultDataDialog').hide();">
+						</p:commandButton>
+
+					</p:column>
+					<p:column>
+						<p:commandButton value="Cancelar"
+										onclick="PF('diagEliminar').hide()">
+							</p:commandButton>
+
+					</p:column>
+				</p:row>
+		</p:panelGrid>
+		</p:dialog>
+</h:form>	
+	
+<!-- DIALOG ERROR AL ELIMINAR -->
+	<p:dialog header="Consulta" widgetVar="diagErrorElimina"
+		minHeight="40" width="350" showEffect="fade" modal="true"
+		resizable="false" closable="false">
+		<p> ERROR AL ELIMINAR</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagErrorElimina').hide();" />
+		</p:dialog>
+
+<!-- DIALOG MODAL AELIMINACION CORRECTA -->	
+<p:dialog header="Consulta" widgetVar="diagOkElimina" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<p> SE ELIMINO CORRECTAMENTE</p>
+		<p:commandButton style="position: relative; left: 10px;"
+			value="Aceptar" onclick="PF('diagOkElimina').hide();" 
+			update=":formConsultar:tableTodos"/>
+	</p:dialog>	
+	
+<!-- 	DATOS A AGREGAR-->
+	<h:form id="diagAgregar">	
+	<p:dialog header="Agregar Elemento" widgetVar="diagAgregar" minHeight="40"
+		width="470" showEffect="fade" modal="true" resizable="false" closable="false">
+	
+		<p:panelGrid>
+			<p:row>
+					<p:column>
+						<p:outputLabel value="ID" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Nombre" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.id}" disabled="true" id="valID">
+<!-- 							<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.id}" update="@this"/>  -->
+							</p:inputText>
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.nombre}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.nombre}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Heroe" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="Compania" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.heroe}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.heroe}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.compania}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.compania}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:outputLabel value="Estatus" />
+					</p:column>
+					<p:column>
+						<p:outputLabel value="" />
+					</p:column>
+				</p:row>
+				<p:row>
+					<p:column>
+						<p:inputText value="#{mongoViewDatatableAll.estatus}">
+<!-- 						<p:ajax event="change" 	listener="#{mongoViewDatatableAll.objSelect.estatus}" update="@this"/> -->
+						</p:inputText>
+					</p:column>
+					<p:column>
+					</p:column>
+				</p:row>
+				<p:row>
+				<p:column>
+						<p:commandButton value="Agregar"
+							action="#{mongoViewDatatableAll.agregarElemento}"
+							onclick="PF('diagAgregar').hide()"
+							oncomplete="PF('consultDataDialog').hide();"
+							>
+<!-- 							<p:ajax event="click" 	listener="#{mongoViewDatatableAll.limpiar()}" update="diagAgregar"/> -->
+						</p:commandButton>
+
+					</p:column>
+					<p:column>
+						<p:commandButton value="Cancelar"
+										onclick="PF('diagAgregar').hide()">
+<!-- 										<p:ajax event="click" 	listener="#{mongoViewDatatableAll.limpiar()}" update="diagAgregar"/> -->
+							</p:commandButton>
+
+					</p:column>
+				</p:row>
+		</p:panelGrid>
+		
+		</p:dialog>
+	</h:form>
+	
+	<!-- MODAL ALERTA NO SE CONSULTO EL ID-->
+	<p:dialog header="Consulta" widgetVar="diagNoId" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false">
+		<p>NO SE PUDO CONSULTAR EL ID</p>
+	</p:dialog>
+	<!-- MODAL ALERTA ocurrio un error al guardar elemento -->
+	<p:dialog header="Consulta" widgetVar="diagErrorGuadar" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false">
+		<p>Error OCURRUIO UN ERROR AL GUARDAR </p>
+	</p:dialog>
+	<!-- MODAL ALERTA no se consulto el ID-->
+	
+	<p:dialog header="Consulta" widgetVar="diagOK" minHeight="40"
+		width="350" showEffect="fade" modal="true" resizable="false"
+		closable="false">
+		<p>SE GUARDARDO CORRECTAMENTE</p>
+		<p:commandButton style="position: relative; left: 10px;"
+						value="Aceptar" 
+						action="#{mongoViewDatatableAll.obtenerIdNext}"
+						onclick="PF('diagOK').hide();" 
+						update="diagAgregar,:formConsultar:tableTodos" />
+	</p:dialog>
+	
+	<!-- 		DIALOG DE BARRA DE CARGA -->
+	<p:dialog id="consultDataDialog" widgetVar="consultDataDialog"
+		modal="true" draggable="false" resizable="false" appendTo="@(body)"
+		closable="false" showHeader="false" showEffect="fade">
+		<div align="center">
+			<h:outputText value="Procesando..." styleClass="outputTextGeneric" />
+			<br />
+			<h:graphicImage value="/core/static/images/loading-bar.gif"
+				width="150" />
+		</div>
+	</p:dialog>
+	
+
+
+</h:body>
+</html>

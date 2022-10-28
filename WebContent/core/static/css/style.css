@@ -1,0 +1,30 @@
+@charset "ISO-8859-1";
+.head {
+	background-color: #ff0000;
+	color: #ffffff;
+	font-size: .8em;
+	padding-top: 25px;
+	font-size: 20px;
+	height: 40px;
+	position: fixed;
+	width: 100%;
+	margin-left: -8px;
+	margin-top: -8px;
+	text-align: center;
+}
+
+
+footer {
+/* 	background: url("../img/footer-content-bg.png") repeat-x; */
+	background-color: #20376a;
+	color: #ffffff;
+	font-size: .8em;
+	padding-top: 25px;
+	font-size: 12px;
+	height: 32px;
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	margin-left: -8px;
+}
+
